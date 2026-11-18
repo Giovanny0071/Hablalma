@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "718892446693",
+    "project_id": "hablalma-a122b",
+    "storage_bucket": "hablalma-a122b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718892446693:android:d7651363997d1f88ab350c",
+        "android_client_info": {
+          "package_name": "com.example.hablalma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWceY_5_wFAldqQjr5viX9kQbMFtaceGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
