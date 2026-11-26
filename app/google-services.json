@@ -12,7 +12,20 @@
           "package_name": "com.example.hablalma"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "718892446693-qroldvhvoc1lu4ghrbpfdqn6fa3lj4om.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hablalma",
+            "certificate_hash": "b2e7b82692b41cb01dafabeb831bca24f7a1dbbc"
+          }
+        },
+        {
+          "client_id": "718892446693-47mkedrb94elvps1kv7n0u1u41ck4hjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCWceY_5_wFAldqQjr5viX9kQbMFtaceGU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718892446693-47mkedrb94elvps1kv7n0u1u41ck4hjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
