@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-    class LoginViewModel : ViewModel() {
+class LoginViewModel : ViewModel() {
 
         private val auth = FirebaseAuth.getInstance()
 
