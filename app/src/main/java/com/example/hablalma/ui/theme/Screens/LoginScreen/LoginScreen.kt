@@ -1,4 +1,6 @@
 package com.example.hablalma.ui.theme.Screens.LoginScreen
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -25,26 +27,30 @@ import androidx.compose.ui.unit.sp
 private val MoradoOscuro = Color(0xFF3D1766)
 private val Lavanda = Color(0xFFF7F1FC)
 private val TextoOscuro = Color(0xFF241630)
+private val TextoSecundario = Color(0xFF665675)
+private val BordeSuave = Color(0xFFE8DCEF)
+private val BordeCampo = Color(0xFFB6A3C8)
 private val FormaCampo = RoundedCornerShape(16.dp)
+private val FormaTarjeta = RoundedCornerShape(28.dp)
 
 @Composable
 fun LoginScreen(
-    onIniciarSesion: (correo: String, contrasena: String) -> Unit,
-    onCrearCuenta: (nombre: String, correo: String, contrasena: String) -> Unit,
-    onRecuperarContrasena: (correo: String) -> Unit
+    onIniciarSesion: (correo: String, contrasena: String) -> Unit = { _, _ -> },
+    onCrearCuenta: (nombre: String, correo: String, contrasena: String) -> Unit =
+        { _, _, _ -> },
+    onRecuperarContrasena: (correo: String) -> Unit = {},
+    onGoogleClick: (enRegistro: Boolean) -> Unit = {}
 ) {
     var enRegistro by rememberSaveable { mutableStateOf(false) }
     var nombre by rememberSaveable { mutableStateOf("") }
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
-    val formaFormulario = RoundedCornerShape(28.dp)
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = Brush.verticalGradient(
+                Brush.verticalGradient(
                     colors = listOf(Color(0xFFECE0FA), Lavanda, Color.White)
                 )
             )
@@ -62,14 +68,14 @@ fun LoginScreen(
             modifier = Modifier
                 .widthIn(max = 440.dp)
                 .fillMaxWidth()
-                .background(Color.White, formaFormulario)
-                .border(1.dp, Color(0xFFE8DCEF), formaFormulario)
+                .background(Color.White, FormaTarjeta)
+                .border(1.dp, BordeSuave, FormaTarjeta)
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
             Text(
-                text = if (enRegistro) "Crea tu cuenta" else "Inicia sesión",
-                style = MaterialTheme.typography.headlineSmall,
+                text = if (enRegistro) "Crea tu cuenta" else "Te damos la bienvenida",
                 color = TextoOscuro,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
 
@@ -90,7 +96,8 @@ fun LoginScreen(
 
                 SeccionContrasena(
                     contrasena = contrasena,
-                    onContrasenaChange = { contrasena = it }
+                    onContrasenaChange = { contrasena = it },
+                    enRegistro = enRegistro
                 )
             }
 
@@ -113,6 +120,13 @@ fun LoginScreen(
                     }
                 }
             )
+
+            Spacer(Modifier.height(16.dp))
+
+            SeccionGoogle(
+                enRegistro = enRegistro,
+                onClick = { onGoogleClick(enRegistro) }
+            )
         }
 
         SeccionCambiarFormulario(
@@ -128,6 +142,7 @@ fun LoginScreen(
 @Composable
 private fun CabeceraHablalma() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
         Text(
             text = "Hablalma",
             color = MoradoOscuro,
@@ -137,9 +152,9 @@ private fun CabeceraHablalma() {
         )
 
         Text(
-            text = "Un espacio Escuchar y ser escuchado",
+            text = "Un espacio para escuchar y ser escuchado",
             modifier = Modifier.padding(top = 4.dp),
-            color = Color(0xFF665675),
+            color = TextoSecundario,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
@@ -174,13 +189,14 @@ private fun SeccionCorreo(
 @Composable
 private fun SeccionContrasena(
     contrasena: String,
-    onContrasenaChange: (String) -> Unit
+    onContrasenaChange: (String) -> Unit,
+    enRegistro: Boolean
 ) {
     CampoFormulario(
         valor = contrasena,
         etiqueta = "Contraseña",
         onValueChange = onContrasenaChange,
-        tipoTeclado = KeyboardType.Password,
+        tipoTeclado = if (enRegistro) KeyboardType.Password else KeyboardType.Password,
         transformacion = PasswordVisualTransformation()
     )
 }
@@ -204,9 +220,9 @@ private fun CampoFormulario(
         modifier = Modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MoradoOscuro,
-            unfocusedBorderColor = Color(0xFFB6A3C8),
+            unfocusedBorderColor = BordeCampo,
             focusedLabelColor = MoradoOscuro,
-            unfocusedLabelColor = Color(0xFF665675),
+            unfocusedLabelColor = TextoSecundario,
             focusedTextColor = TextoOscuro,
             unfocusedTextColor = TextoOscuro,
             focusedContainerColor = Color.White,
@@ -222,7 +238,11 @@ private fun SeccionRecuperarContrasena(
     modifier: Modifier = Modifier
 ) {
     TextButton(onClick = onClick, modifier = modifier) {
-        Text("¿Has olvidado tu contraseña?", color = MoradoOscuro)
+        Text(
+            text = "¿Has olvidado tu contraseña?",
+            color = MoradoOscuro,
+            textAlign = TextAlign.End
+        )
     }
 }
 
@@ -240,7 +260,46 @@ private fun BotonPrincipal(
             contentColor = Color.White
         )
     ) {
-        Text(texto, fontWeight = FontWeight.SemiBold)
+        Text(text = texto, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun SeccionGoogle(
+    enRegistro: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = BordeSuave)
+        Text(
+            text = "o",
+            color = TextoSecundario,
+            style = MaterialTheme.typography.bodySmall
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = BordeSuave)
+    }
+
+    Spacer(Modifier.height(12.dp))
+
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
+        shape = FormaCampo,
+        border = BorderStroke(1.dp, BordeCampo),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.White,
+            contentColor = MoradoOscuro
+        )
+    ) {
+        Text(
+            text = if (enRegistro) "Registrarme con Google" else "Entrar con Google",
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -251,7 +310,7 @@ private fun SeccionCambiarFormulario(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = Modifier.padding(top = 12.dp)
     ) {
         Text(
             text = if (enRegistro) {
@@ -265,4 +324,10 @@ private fun SeccionCambiarFormulario(
     }
 }
 
-
+@Preview(showBackground = true, widthDp = 390, heightDp = 820)
+@Composable
+private fun LoginScreenPreview() {
+    MaterialTheme {
+        LoginScreen()
+    }
+}
