@@ -26,10 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.example.hablalma.Helpers.Colores
 import com.example.hablalma.ui.theme.Screens.LoginScreen.LoginViewModel
 
-private val MoradoOscuro = Color(0xFF3D1766)
-private val Lavanda = Color(0xFFF7F1FC)
+
 private val TextoOscuro = Color(0xFF241630)
 private val TextoSecundario = Color(0xFF665675)
 private val BordeSuave = Color(0xFFE8DCEF)
@@ -74,7 +74,7 @@ fun LoginScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFECE0FA), Lavanda, Color.White)
+                    colors = listOf(Color(0xFFECE0FA), Colores.Lavanda, Color.White)
                 )
             )
             .safeDrawingPadding()
@@ -144,7 +144,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
                 shape = FormaCampo,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MoradoOscuro,
+                    containerColor = Colores.MoradoOscuro,
                     contentColor = Color.White
                 )
             ) {
@@ -167,7 +167,7 @@ fun LoginScreen(
                 shape = FormaCampo,
                 border = BorderStroke(1.dp, BordeCampo),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MoradoOscuro
+                    contentColor = Colores.MoradoOscuro
                 )
             ) {
                 Text(
@@ -182,7 +182,7 @@ fun LoginScreen(
 
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally).size(24.dp),
-                    color = MoradoOscuro,
+                    color =  Colores.MoradoOscuro,
                     strokeWidth = 2.dp
                 )
             }
@@ -200,7 +200,7 @@ fun LoginScreen(
             },
             enabled = !isLoading,
             modifier = Modifier.padding(top = 12.dp),
-            colors = ButtonDefaults.textButtonColors(contentColor = MoradoOscuro)
+            colors = ButtonDefaults.textButtonColors(contentColor =  Colores.MoradoOscuro)
         ) {
             Text(
                 text = if (enRegistro) {
@@ -222,7 +222,7 @@ private fun CabeceraHablalma() {
             modifier = Modifier
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF542682), MoradoOscuro)
+                        colors = listOf(Color(0xFF542682),  Colores.MoradoOscuro)
                     ),
                     shape = RoundedCornerShape(22.dp)
                 )
@@ -236,7 +236,7 @@ private fun CabeceraHablalma() {
 
         Text(
             text = "Hablalma",
-            color = MoradoOscuro,
+            color =  Colores.MoradoOscuro,
             fontSize = 38.sp,
             fontWeight = FontWeight.Bold
         )
@@ -302,15 +302,15 @@ private fun CampoFormulario(
         shape = FormaCampo,
         modifier = Modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MoradoOscuro,
+            focusedBorderColor =  Colores.MoradoOscuro,
             unfocusedBorderColor = BordeCampo,
-            focusedLabelColor = MoradoOscuro,
+            focusedLabelColor =  Colores.MoradoOscuro,
             unfocusedLabelColor = TextoSecundario,
             focusedTextColor = TextoOscuro,
             unfocusedTextColor = TextoOscuro,
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            cursorColor = MoradoOscuro
+            cursorColor =  Colores.MoradoOscuro
         )
     )
 }
