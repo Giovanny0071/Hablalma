@@ -1,5 +1,6 @@
-package com.example.hablalma.ui.theme.Screens.LoginScreen
+package com.example.hablalma.ui.theme.Login
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,14 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import com.example.hablalma.ui.theme.Screens.LoginScreen.LoginViewModel
 
 private val MoradoOscuro = Color(0xFF3D1766)
 private val Lavanda = Color(0xFFF7F1FC)
@@ -35,16 +39,35 @@ private val FormaTarjeta = RoundedCornerShape(28.dp)
 
 @Composable
 fun LoginScreen(
-    onIniciarSesion: (correo: String, contrasena: String) -> Unit = { _, _ -> },
-    onCrearCuenta: (nombre: String, correo: String, contrasena: String) -> Unit =
-        { _, _, _ -> },
-    onRecuperarContrasena: (correo: String) -> Unit = {},
-    onGoogleClick: (enRegistro: Boolean) -> Unit = {}
+    navController: NavHostController,
+    loginViewModel: LoginViewModel = LoginViewModel()
 ) {
+    val context = LocalContext.current
+    val isLoading by loginViewModel.isLoading.collectAsStateWithLifecycle()
+    val loginSuccess by loginViewModel.loginSuccess.collectAsStateWithLifecycle()
+    val errorMessage by loginViewModel.errorMessage.collectAsStateWithLifecycle()
+    val googleToastMessage by loginViewModel.googleToastMessage.collectAsStateWithLifecycle()
+
     var enRegistro by rememberSaveable { mutableStateOf(false) }
     var nombre by rememberSaveable { mutableStateOf("") }
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            navController.navigate("inicio") {
+                popUpTo("login") { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
+    LaunchedEffect(googleToastMessage) {
+        googleToastMessage?.let { mensaje ->
+            Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
+            loginViewModel.consumeGoogleToastMessage()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -83,89 +106,153 @@ fun LoginScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (enRegistro) {
-                    SeccionNombre(
-                        nombre = nombre,
-                        onNombreChange = { nombre = it }
-                    )
+                    SeccionNombre(nombre = nombre, onNombreChange = { nombre = it })
                 }
 
-                SeccionCorreo(
-                    correo = correo,
-                    onCorreoChange = { correo = it }
-                )
+                SeccionCorreo(correo = correo, onCorreoChange = { correo = it })
 
                 SeccionContrasena(
                     contrasena = contrasena,
-                    onContrasenaChange = { contrasena = it },
-                    enRegistro = enRegistro
+                    onContrasenaChange = { contrasena = it }
                 )
             }
 
             if (!enRegistro) {
-                SeccionRecuperarContrasena(
-                    onClick = { onRecuperarContrasena(correo.trim()) },
-                    modifier = Modifier.align(Alignment.End)
+                TextButton(
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.align(Alignment.End),
+                    colors = ButtonDefaults.textButtonColors(
+                        disabledContentColor = TextoSecundario
+                    )
+                ) {
+                    Text("¿Has olvidado tu contraseña?")
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    if (enRegistro) {
+                        loginViewModel.registerWithEmail(correo.trim(), contrasena)
+                    } else {
+                        loginViewModel.loginWithEmail(correo.trim(), contrasena)
+                    }
+                },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
+                shape = FormaCampo,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MoradoOscuro,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = if (enRegistro) "Crear cuenta" else "Iniciar sesión",
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
             Spacer(Modifier.height(16.dp))
 
-            BotonPrincipal(
-                texto = if (enRegistro) "Crear cuenta" else "Iniciar sesión",
-                onClick = {
-                    if (enRegistro) {
-                        onCrearCuenta(nombre.trim(), correo.trim(), contrasena)
-                    } else {
-                        onIniciarSesion(correo.trim(), contrasena)
-                    }
-                }
-            )
+            SeparadorGoogle()
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
-            SeccionGoogle(
-                enRegistro = enRegistro,
-                onClick = { onGoogleClick(enRegistro) }
-            )
+            OutlinedButton(
+                onClick = { loginViewModel.launchGoogle(context, enRegistro) },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
+                shape = FormaCampo,
+                border = BorderStroke(1.dp, BordeCampo),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MoradoOscuro
+                )
+            ) {
+                Text(
+                    text = if (enRegistro) "Registrarme con Google" else "Entrar con Google",
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            if (isLoading) {
+                Spacer(Modifier.height(16.dp))
+
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally).size(24.dp),
+                    color = MoradoOscuro,
+                    strokeWidth = 2.dp
+                )
+            }
+
+            errorMessage?.let { mensaje ->
+                Spacer(Modifier.height(12.dp))
+                Text(mensaje, color = MaterialTheme.colorScheme.error)
+            }
         }
 
-        SeccionCambiarFormulario(
-            enRegistro = enRegistro,
+        TextButton(
             onClick = {
                 enRegistro = !enRegistro
                 contrasena = ""
-            }
-        )
+            },
+            enabled = !isLoading,
+            modifier = Modifier.padding(top = 12.dp),
+            colors = ButtonDefaults.textButtonColors(contentColor = MoradoOscuro)
+        ) {
+            Text(
+                text = if (enRegistro) {
+                    "¿Ya tienes cuenta? Inicia sesión"
+                } else {
+                    "¿No tienes cuenta? Regístrate"
+                },
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
 @Composable
 private fun CabeceraHablalma() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "H",
+            modifier = Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFF542682), MoradoOscuro)
+                    ),
+                    shape = RoundedCornerShape(22.dp)
+                )
+                .padding(horizontal = 22.dp, vertical = 10.dp),
+            color = Color.White,
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(Modifier.height(12.dp))
 
         Text(
             text = "Hablalma",
             color = MoradoOscuro,
             fontSize = 38.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Un espacio para escuchar y ser escuchado",
-            modifier = Modifier.padding(top = 4.dp),
+            text = "Un espacio para hablar y escuchar",
             color = TextoSecundario,
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 }
 
 @Composable
-private fun SeccionNombre(
-    nombre: String,
-    onNombreChange: (String) -> Unit
-) {
+private fun SeccionNombre(nombre: String, onNombreChange: (String) -> Unit) {
     CampoFormulario(
         valor = nombre,
         etiqueta = "Nombre",
@@ -174,10 +261,7 @@ private fun SeccionNombre(
 }
 
 @Composable
-private fun SeccionCorreo(
-    correo: String,
-    onCorreoChange: (String) -> Unit
-) {
+private fun SeccionCorreo(correo: String, onCorreoChange: (String) -> Unit) {
     CampoFormulario(
         valor = correo,
         etiqueta = "Correo electrónico",
@@ -189,14 +273,13 @@ private fun SeccionCorreo(
 @Composable
 private fun SeccionContrasena(
     contrasena: String,
-    onContrasenaChange: (String) -> Unit,
-    enRegistro: Boolean
+    onContrasenaChange: (String) -> Unit
 ) {
     CampoFormulario(
         valor = contrasena,
         etiqueta = "Contraseña",
         onValueChange = onContrasenaChange,
-        tipoTeclado = if (enRegistro) KeyboardType.Password else KeyboardType.Password,
+        tipoTeclado = KeyboardType.Password,
         transformacion = PasswordVisualTransformation()
     )
 }
@@ -233,101 +316,14 @@ private fun CampoFormulario(
 }
 
 @Composable
-private fun SeccionRecuperarContrasena(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(onClick = onClick, modifier = modifier) {
-        Text(
-            text = "¿Has olvidado tu contraseña?",
-            color = MoradoOscuro,
-            textAlign = TextAlign.End
-        )
-    }
-}
-
-@Composable
-private fun BotonPrincipal(
-    texto: String,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
-        shape = FormaCampo,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MoradoOscuro,
-            contentColor = Color.White
-        )
-    ) {
-        Text(text = texto, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun SeccionGoogle(
-    enRegistro: Boolean,
-    onClick: () -> Unit
-) {
+private fun SeparadorGoogle() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         HorizontalDivider(modifier = Modifier.weight(1f), color = BordeSuave)
-        Text(
-            text = "o",
-            color = TextoSecundario,
-            style = MaterialTheme.typography.bodySmall
-        )
+        Text("o", color = TextoSecundario, style = MaterialTheme.typography.bodySmall)
         HorizontalDivider(modifier = Modifier.weight(1f), color = BordeSuave)
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
-        shape = FormaCampo,
-        border = BorderStroke(1.dp, BordeCampo),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = Color.White,
-            contentColor = MoradoOscuro
-        )
-    ) {
-        Text(
-            text = if (enRegistro) "Registrarme con Google" else "Entrar con Google",
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun SeccionCambiarFormulario(
-    enRegistro: Boolean,
-    onClick: () -> Unit
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.padding(top = 12.dp)
-    ) {
-        Text(
-            text = if (enRegistro) {
-                "¿Ya tienes cuenta? Inicia sesión"
-            } else {
-                "¿No tienes cuenta? Regístrate"
-            },
-            color = MoradoOscuro,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 390, heightDp = 820)
-@Composable
-private fun LoginScreenPreview() {
-    MaterialTheme {
-        LoginScreen()
     }
 }
