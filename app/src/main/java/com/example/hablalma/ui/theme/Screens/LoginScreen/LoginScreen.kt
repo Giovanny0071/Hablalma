@@ -55,12 +55,18 @@ fun LoginScreen(
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
-            navController.navigate("inicio") {
-                popUpTo("login") { inclusive = true }
-                launchSingleTop = true
+            if (enRegistro) {
+                loginViewModel.signOut()
+                enRegistro = false
+                nombre = ""
+                contrasena = ""
+            } else {
+                TODO()
             }
         }
     }
+
+
 
     LaunchedEffect(googleToastMessage) {
         googleToastMessage?.let { mensaje ->
@@ -182,7 +188,7 @@ fun LoginScreen(
 
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally).size(24.dp),
-                    color =  Colores.MoradoOscuro,
+                    color = Colores.MoradoOscuro,
                     strokeWidth = 2.dp
                 )
             }
@@ -200,7 +206,7 @@ fun LoginScreen(
             },
             enabled = !isLoading,
             modifier = Modifier.padding(top = 12.dp),
-            colors = ButtonDefaults.textButtonColors(contentColor =  Colores.MoradoOscuro)
+            colors = ButtonDefaults.textButtonColors(contentColor = Colores.MoradoOscuro)
         ) {
             Text(
                 text = if (enRegistro) {
@@ -214,8 +220,9 @@ fun LoginScreen(
     }
 }
 
+
 @Composable
-private fun CabeceraHablalma() {
+ fun CabeceraHablalma() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "H",
@@ -252,7 +259,7 @@ private fun CabeceraHablalma() {
 }
 
 @Composable
-private fun SeccionNombre(nombre: String, onNombreChange: (String) -> Unit) {
+ fun SeccionNombre(nombre: String, onNombreChange: (String) -> Unit) {
     CampoFormulario(
         valor = nombre,
         etiqueta = "Nombre",
@@ -261,7 +268,7 @@ private fun SeccionNombre(nombre: String, onNombreChange: (String) -> Unit) {
 }
 
 @Composable
-private fun SeccionCorreo(correo: String, onCorreoChange: (String) -> Unit) {
+ fun SeccionCorreo(correo: String, onCorreoChange: (String) -> Unit) {
     CampoFormulario(
         valor = correo,
         etiqueta = "Correo electrónico",
@@ -271,7 +278,7 @@ private fun SeccionCorreo(correo: String, onCorreoChange: (String) -> Unit) {
 }
 
 @Composable
-private fun SeccionContrasena(
+ fun SeccionContrasena(
     contrasena: String,
     onContrasenaChange: (String) -> Unit
 ) {
@@ -285,7 +292,7 @@ private fun SeccionContrasena(
 }
 
 @Composable
-private fun CampoFormulario(
+ fun CampoFormulario(
     valor: String,
     etiqueta: String,
     onValueChange: (String) -> Unit,
@@ -316,7 +323,7 @@ private fun CampoFormulario(
 }
 
 @Composable
-private fun SeparadorGoogle() {
+ fun SeparadorGoogle() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
