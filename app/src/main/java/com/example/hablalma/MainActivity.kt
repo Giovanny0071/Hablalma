@@ -14,13 +14,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 import com.example.hablalma.ui.theme.HablalmaTheme
-import com.example.hablalma.ui.theme.Screens.LoginScreen.LoginScreen
+import com.example.hablalma.ui.theme.Login.LoginScreen
 import com.example.hablalma.ui.theme.Screens.LoginScreen.LoginViewModel
 
 
 class MainActivity : ComponentActivity() {
 
-    private val lgv: LoginViewModel = LoginViewModel()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,13 +29,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             HablalmaTheme {
                 val navController = rememberNavController()
-
                 NavHost(
                     navController = navController,
-                    startDestination = "login"
+                    startDestination = Destinations.login
                 ) {
                     composable(Destinations.login) {
-                        LoginScreen()
+                        LoginScreen(
+                            navController = navController,
+                        )
                     }
 
                 }
